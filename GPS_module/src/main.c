@@ -24,15 +24,17 @@
 #include "inttypes.h"
 #include <stdlib.h>
 
-int transmit_lock = 0; // Prevents the current buffered data from being replaced with new data
 int is_reading_sentence = 0; // 1 if buffer is currently reading a valid NMEA sentence
 
-char buffer1[NMEA_BUFFER_SIZE];
-char* stored_ptr = buffer1; // TODO: set start value
+// Store buffer has the newest complete GPGGA message
+char buffer1[82] = "$GPGGA,777777.777,7777.7777,N,77777.7777,W,7,7,7.77,77.7,M,77.7,M,,*77";
+char* stored_ptr = buffer1;
+uint8_t stored_size = 70;
+
+// Receive buffer stores the incoming NMEA message
 char buffer2[NMEA_BUFFER_SIZE];
 char* receiving_ptr = buffer2;
-int receiving_size;
-
+uint8_t receiving_size;
 
 uint8_t fields_of_interest[] = 	{ 2,4,6,7,9 };
 uint8_t field_sizes[] = 		{ 8,9,1,2,6 };
@@ -44,18 +46,15 @@ const char *byte_to_binary(int x);
 void truncate_char_array(char *input, uint8_t length_of_input, uint8_t *output);
 void parser(char *input, uint8_t length_of_input, char *output, uint8_t length_of_output);
 
-
-uint8_t stored_length = 77; //TODO: CHRISTIAN!! 
-
 static void USART_Init(void){
 	/* Hold reset on GPS until USART has finished initialization */
 	PORTB &= ~(1<<DDB0);
-	
+
 	/* Calculate baud-register values */
 	#define BAUD 9600
 	#define USE_2X 0
 	#include <util/setbaud.h>
-	
+
 	/* Set baud registers for USART */
 	UBRR0H = UBRRH_VALUE;
 	UBRR0L = UBRRL_VALUE;
@@ -64,56 +63,39 @@ static void USART_Init(void){
 	UCSR0B = (1<<RXEN0)|(1<<TXEN0);
 	/* Set frame format: 8 data, 1 stop bit */
 	UCSR0C = (1<<UCSZ00)|(1<<UCSZ01);
-	
+
 	/* Release reset on GPS */
 	PORTB |= 0x01;
 }
 
-//TODO: Disable interrupts. and enable.
-unsigned int USART_Receive( void ){
-	/* Wait for data to be received */
-	while ( !(UCSR0A & (1<<RXC0)) )
-	;
-	
-	/* Store received character */
-	char msg = UDR0;
-	
-	/* Check for start of sentence */
-	if (msg == '$') {
-		/* Don't overwrite stored buffer if we are currently transmitting it */
-		if (!transmit_lock) {
-			// Only replace content of the stored buffer if the new data is a GPS fix sentence
-			if (strncmp(receiving_ptr, "$GPGGA", 6) == 0) {
-				char* old_stored = stored_ptr;
-				stored_ptr = receiving_ptr;
-				receiving_ptr = old_stored;
-				
-				volatile char tmp = *(stored_ptr+43);
-				// Update GPS fix indication LED (Prototype only)
-				if(*(stored_ptr+43) != '0') {
-					PORTB |= 0x02;
-				} else {
-					PORTB &= ~(1<<DDB1);
-				}
-			}
+ISR(UART0_RX_vect) {
+    /* Store received character */
+    char msg = UDR0;
 
-			
-			receiving_size = 0;
-			
-		}
-	}
-	if (receiving_size != NMEA_BUFFER_SIZE) {
-		/* Put new character at the correct offset from the receive buffer */
-		*(receiving_ptr+receiving_size) = msg;
-		receiving_size++;
-	}
+    /* Check for start of sentence */
+    if (msg == '$') {
+        // Only replace content of the stored buffer if the new data is a GPS fix sentence
+        if (strncmp(receiving_ptr, "$GPGGA", 6) == 0) {
+            char* old_stored = stored_ptr;
+            stored_ptr = receiving_ptr;
+            receiving_ptr = old_stored;
 
-
-	/* Get and return received data from buffer */
-	return UDR0;
+            volatile char tmp = *(stored_ptr+43);
+            // Update GPS fix indication LED (Prototype only)
+            if(*(stored_ptr+43) != '0') {
+                PORTB |= 0x02;
+            } else {
+                PORTB &= ~(1<<DDB1);
+            }
+        }
+        receiving_size = 0;
+    }
+    if (receiving_size != NMEA_BUFFER_SIZE) {
+        /* Put new character at the correct offset from the receive buffer */
+        *(receiving_ptr+receiving_size) = msg;
+        receiving_size++;
+    }
 }
-
-
 
 volatile uint8_t next_byte_to_send = 0;
 volatile uint8_t array_currently_being_sent[13];
@@ -121,7 +103,7 @@ volatile uint8_t array_currently_being_sent[13];
 ISR(PCINT0_vect) {
 	if (next_byte_to_send >= 13) {
 		char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-		parse_NMEA(stored_ptr, stored_length, parsed, LENGTH_OF_PARSED);
+		parse_NMEA(stored_ptr, stored_size, parsed, LENGTH_OF_PARSED);
 		truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
 		set_output_pins(0);
 		next_byte_to_send = 0;
@@ -207,18 +189,13 @@ int main (void)
 {
 	/* Set PB0 to output (Use for reset signal on GPS) */
 	DDRB = (1<<DDB0);
-	
+
 	/* Set PB1 to output (Use for fix indication LED in prototype) */
 	DDRB = (1<<DDB1);
 	PORTB |= 0x02;
 
-	
+
 	USART_Init();
-	
-	while (1) {
-		USART_Receive();
-	}
 
-
-	/* Insert application code here, after the board has been initialized. */
+	while (1) {} // Polling is for losers
 }

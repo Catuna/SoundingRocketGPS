@@ -111,19 +111,22 @@ uint8_t next_byte_to_send = 0;
 uint8_t array_currently_being_sent[13];
 
 ISR(PCINT1_vect) {
-	if (next_byte_to_send >= 13) {
-		//Start sending a new message.
-		char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-		parse_NMEA(stored_ptr, stored_size, parsed, LENGTH_OF_PARSED);
-		truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
-		OUTPUT_PORT = get_output_data(0);
-		next_byte_to_send = 0;
-	}
-	else {
-		//We are currently in the process of sending a message.
-		OUTPUT_PORT = get_output_data(array_currently_being_sent[next_byte_to_send]);
-		next_byte_to_send++;
-	}
+	// Check if it is a rising edge. (we don't care about falling edge)
+	if (PINB & (1 << PB1)){
+		if (next_byte_to_send >= 13) {
+			//Start sending a new message.
+			char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
+			parse_NMEA(stored_ptr, stored_size, parsed, LENGTH_OF_PARSED);
+			truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
+			OUTPUT_PORT = get_output_data(0);
+			next_byte_to_send = 0;
+		}
+		else {
+			//We are currently in the process of sending a message.
+			OUTPUT_PORT = get_output_data(array_currently_being_sent[next_byte_to_send]);
+			next_byte_to_send++;
+		}
+    }    
 }
 
 int main (void)

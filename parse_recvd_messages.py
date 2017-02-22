@@ -82,8 +82,8 @@ for i in range(0, len(messages)):
 #             latitude, longitude, quality ind., numofsat, altitude
 #field_sizes:   8           9           1           2           6             
 messagesInterpreted = [];
-for i in range(0, len(messages)):
-    msg = messages[i];
+for i in range(0, len(messagesAsChars)):
+    msg = messagesAsChars[i];
     #Hard coding was the easiest way.
     messagesInterpreted[i] = [float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8],
                                   +msg[9]+msg[10]+msg[11]+msg[12]+msg[13]+'.'+msg[14]+msg[15]+msg[16]+msg[17]),
@@ -93,7 +93,7 @@ for i in range(0, len(messages)):
             
 
 #Store the interpreted messages for later use.
-with open("messages.txt", "w") as f:
+with open("interpretedMessages.txt", "w") as f:
     for i in range(0, len(messagesInterpreted)):
         for j in range(0, len(messagesInterpreted[i])):
             f.write(str(messagesInterpreted[i][j]));

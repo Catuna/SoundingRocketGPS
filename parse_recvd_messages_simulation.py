@@ -10,7 +10,6 @@ for i in range(0,len(lines)):
 print("Total number of packages recv: " + str(totalSize))
 
 
-numberOf255Words = 0;
 messages=[];#Whole messages is the same as 13 uint8_t's
 words = []; #      one word is the same as 1  uint8_t/single message/package.
 remainingWords = 0;
@@ -25,21 +24,12 @@ for i in range(0, len(values)):
         remainingWords-=1;
         if(remainingWords == 0):
             #We have read the entire message
-            numberOf255Words = 0;
             messages.append(words);
             words = [];
     else:
         #we are looking for the start of a new message
-        if values[i][1] == 255 and numberOf255Words == 0:
-            numberOf255Words+=1;
-        elif values[i][1] == 255 and numberOf255Words == 1:
-            #start of message found
-            numberOf255Words=0;
+        if values[i] == 255:
             remainingWords = 13;
-            
-        elif numberOf255Words ==1 and values[i][1] != 255:
-            #It was just a value 255 and not the start of a message
-            numberOf255Words=0;
 
 
 #Here we are expanding one word(=uint8_t) into 2 chars.

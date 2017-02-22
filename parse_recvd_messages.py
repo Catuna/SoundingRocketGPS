@@ -65,13 +65,26 @@ for i in range(0, len(values)):
 
 print ("Total misplaced counters: " + str(totalLosses));
 
+
+def validateValue(a):
+    if(a >= 0 and a <= 9):
+        return a;
+    elif(a == 15):
+        print ("Error indicator found. Setting value to 0");
+        return 0;
+    else:
+        print("Unexpected error. Value is not 0-9 or 15. Setting it to 0");
+        return 0;
+
+
+
 #Here we are expanding one word(=uint8_t) into 2 chars.
 messagesAsChars=[]
 for i in range(0, len(messages)):
     for j in range(0, len(messages[i])):
         word = messages[i][j];
-        char1 = chr((word >> 4) + 48);
-        char2 = chr((word & int('00001111',2))+48);
+        char1 = chr(validateValue((word >> 4) + 48));
+        char2 = chr(validateValue((word & int('00001111',2))+48));
         messagesAsChars.append(char1);
         messagesAsChars.append(char2);
 
@@ -102,7 +115,3 @@ with open("interpretedMessages.txt", "w") as f:
         if i < len(messagesInterpreted)-1:
             f.write('\n');
                 
-
-
-
-    

@@ -15,7 +15,7 @@
 #define INITIAL_GPGGA "$GPGGA,777777.777,7777.7777,N,77777.7777,W,7,7,7.77,77.7,M,77.7,M,,*77"
 #define INITIAL_GPGGA_SIZE 70
 
-#define OUTPUT_PORT PORTD //TODO: Not sure which output reg to use
+#define OUTPUT_PORT PORTA //TODO: Not sure which output reg to use
 #define LENGTH_OF_PARSED 26 // Length of parsed char array
 
 
@@ -66,10 +66,26 @@ static void GPIO_Init(void) {
 	//TODO: GPIO interrupt enable and pin configuration here
 	
 	/* Set PB0 to output (Use for reset signal on GPS) */
-	DDRB = (1<<DDB0);
+	DDRB |= (1<<DDB0); 
+	
+	/* Set PB1 to input, (FrameStart pin) */
+	DDRB &= ~(1<<DDB1);
+	
+	/* Set PA0-7 to output (Used for sending 1 byte)*/
+	DDRA = 0xff;
+	
+	/* Enable interrupt on pin PB1 (apparently not) */
+	PCMSK1 |=  1 << PCINT9;
+	
+	/* Enable interrupt on port B */
+	PCICR |= 1 << PCIE1;
+	
 }
 
+//PB1 - PCINT9
+
 ISR(USART0_RX_vect) {
+	
     /* Store received character */
     char msg = UDR0;
 
@@ -94,8 +110,9 @@ ISR(USART0_RX_vect) {
 uint8_t next_byte_to_send = 0;
 uint8_t array_currently_being_sent[13];
 
-ISR(PCINT0_vect) {
+ISR(PCINT1_vect) {
 	if (next_byte_to_send >= 13) {
+		//Start sending a new message.
 		char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
 		parse_NMEA(stored_ptr, stored_size, parsed, LENGTH_OF_PARSED);
 		truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
@@ -103,6 +120,7 @@ ISR(PCINT0_vect) {
 		next_byte_to_send = 0;
 	}
 	else {
+		//We are currently in the process of sending a message.
 		OUTPUT_PORT = get_output_data(array_currently_being_sent[next_byte_to_send]);
 		next_byte_to_send++;
 	}
@@ -110,6 +128,7 @@ ISR(PCINT0_vect) {
 
 int main (void)
 {
+	cli();
 	GPIO_Init();
 	USART_Init();
 	sei();

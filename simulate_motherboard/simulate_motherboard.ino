@@ -20,15 +20,15 @@
 
 /*  Pin layout
     Pinne nr    Pinne nr    Navn
-    Rakett      Arduino     rakett
-    5           3           FrameStart
-    7           7           D0 (LSB)
-    8           8           D1
-    9           9           D2
-    10          10          D3
-    11          11          D4
-    12          12          D5
-    13          13          D6
+    Rakett      Arduino     rakett          xplained
+    5           3           FrameStart      
+    7           7           D0 (LSB)         PA0
+    8           8           D1               PA1
+    9           9           D2               PA2
+    10          10          D3               PA3
+    11          11          D4               PA4
+    12          12          D5               PA5
+    13          13          D6               PA6
     14          6           D7 (MSB)    (Arduiono doesn't have pin nr. 14)
 */
 

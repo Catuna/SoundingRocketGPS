@@ -6,17 +6,19 @@ uint8_t field_sizes[] = 		{ 8,9,1,2,6 };
 //TODO: Rearrange the bit-pin config.
 char get_output_data(uint8_t value) {
 	// Bits are rearranged to match the rocket controller pinout
-	uint8_t data7 = (value & (1 << 7)) >> 3;
-	uint8_t data6 = (value & (1 << 6)) >> 3;
-	uint8_t data5 = (value & (1 << 5)) >> 0;
-	uint8_t data4 = (value & (1 << 4)) >> 2;
-	uint8_t data3 = (value & (1 << 3)) << 3;	// Notice: Left shift
-	uint8_t data2 = (value & (1 << 2)) >> 1;
-	uint8_t data1 = (value & (1 << 1)) << 6;	// Notice: Left shift
-	uint8_t data0 = (value & (1 << 0)) >> 0;
+	/*
+	uint8_t data7 = (value & (1 << 7)) << 0; // MSB
+	uint8_t data6 = (value & (1 << 6)) << 0;
+	uint8_t data5 = (value & (1 << 5)) << 0;
+	uint8_t data4 = (value & (1 << 4)) << 0;
+	uint8_t data3 = (value & (1 << 3)) << 0;
+	uint8_t data2 = (value & (1 << 2)) << 0;
+	uint8_t data1 = (value & (1 << 1)) << 0;
+	uint8_t data0 = (value & (1 << 0)) << 0; // LSB
+	*/
 
 	// Bits are assembled into a byte and put on output pins
-	return data7 | data6 | data5 | data4 | data3 | data2 | data1 | data0;
+	return value;
 }
 
 //Extracts the fields of interests.

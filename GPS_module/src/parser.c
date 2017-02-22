@@ -22,7 +22,7 @@ char get_output_data(uint8_t value) {
 }
 
 //Extracts the fields of interests.
-void parse_NMEA(char *input, uint8_t length_of_input, char *output, uint8_t length_of_output) {
+void parse_NMEA(char *input, uint8_t length_of_input, char *output) {
 	uint8_t j = 4; //iterate over fields of interest
 	int8_t k = 25; //iterate over the output variable
 	uint8_t current_field = 14; // Iterating from the end.  TODO: in example there are 14 fields and not 11 as in doc. check reality.
@@ -30,10 +30,11 @@ void parse_NMEA(char *input, uint8_t length_of_input, char *output, uint8_t leng
 
 
 	for (int i = length_of_input - 1; i >= 0; i--) {
+		// a ',' is used to separate the fields of an NMEA message.
 		if (input[i] == ',') {
 			current_field--;
 			if (current_field < fields_of_interest[0]) {
-				break;
+				break; // We have found all the fields of interest.
 			}
 			else if (current_field == fields_of_interest[j]) {
 				remaining_field_chars = field_sizes[j];
@@ -43,11 +44,12 @@ void parse_NMEA(char *input, uint8_t length_of_input, char *output, uint8_t leng
 		}
 
 		if (remaining_field_chars > 0) {
+			// Check if zero-padding is needed.
 			if (remaining_field_chars > 1 && input[i - 1] == ',') {
-				//we need to zero pad. All the fields are already '0', so we just need to jump:
 				output[k] = input[i];
 				k--;
 				remaining_field_chars--;
+				//All the fields are already '0', so we just need to jump:
 				k -= remaining_field_chars;
 				remaining_field_chars = 0;
 			}
@@ -62,13 +64,18 @@ void parse_NMEA(char *input, uint8_t length_of_input, char *output, uint8_t leng
 
 
 void truncate_char_array(char *input, uint8_t length_of_input, uint8_t *output) {
+	
+	// Used to separate the messages.
+	output[0] = 0xff;
+	output[1] = 0xff;
 
 	if (length_of_input % 2 != 0) { //If it is an odd number of elements
-		output[length_of_input / 2] = (((uint8_t)input[length_of_input - 1]) - 48) << 4;
+		output[2 + length_of_input/2] = (((uint8_t)input[length_of_input - 1]) - 48) << 4;
 	}
 
-	uint8_t j = 0;
+	uint8_t j = 0; //Used to iterate over the output array.
 	for (int i = 0; i < length_of_input - 1; i += 2) {
-		output[j++] = ((((uint8_t)input[i]) - 48) << 4) | ((((uint8_t)input[i + 1]) - 48));
+		output[2+j++] = ((((uint8_t)input[i]) - 48) << 4) | ((((uint8_t)input[i + 1]) - 48));
 	}
+
 }

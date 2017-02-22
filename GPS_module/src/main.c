@@ -17,7 +17,7 @@
 
 #define OUTPUT_PORT PORTA //TODO: Not sure which output reg to use
 #define LENGTH_OF_PARSED 26 // Length of parsed char array
-#define LENGTH_OF_OUTPUT_MESSAGE 15 // Number of uint8_t in one whole message including message separators (2x uint8_t)
+#define LENGTH_OF_OUTPUT_MESSAGE 14 // Number of uint8_t in one whole message including message separators (2x uint8_t)
 
 
 #include <asf.h>
@@ -109,7 +109,7 @@ ISR(USART0_RX_vect) {
 }
 
 uint8_t next_byte_to_send = LENGTH_OF_OUTPUT_MESSAGE; // Initialized to 15 such that we will load a new message the first time.
-uint8_t array_currently_being_sent[15];
+uint8_t array_currently_being_sent[14];
 
 ISR(PCINT1_vect) {
 	// Check if it is a rising edge. (we don't care about falling edge)

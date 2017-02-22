@@ -62,10 +62,15 @@ void parse_NMEA(char *input, uint8_t length_of_input, char *output) {
 	}
 }
 
-// 15 indicates an error.
+
 uint8_t validateValue(int a){
-	if (a < 0 || a > 9){
-		return 15;	
+	
+	if (a == -3){	//decimal value of a '-' is 45.
+		return 13; //A minus sign is sent.
+	}
+	
+	else if (a < 0 || a > 9){
+		return 14;	// 14 indicates an error.
 	}
 	return ((uint8_t) a);
 }
@@ -74,15 +79,14 @@ void truncate_char_array(char *input, uint8_t length_of_input, uint8_t *output) 
 	
 	// Used to separate the messages.
 	output[0] = 0xff;
-	output[1] = 0xff;
 
 	if (length_of_input % 2 != 0) { //If it is an odd number of elements
-		output[2 + length_of_input/2] = validateValue((uint8_t)input[length_of_input - 1] - 48) << 4;
+		output[1 + length_of_input/2] = validateValue((uint8_t)input[length_of_input - 1] - 48) << 4;
 	}
 
 	uint8_t j = 0; //Used to iterate over the output array.
 	for (int i = 0; i < length_of_input - 1; i += 2) {
-		output[2+j++] = (validateValue( (uint8_t)input[i]-48 )  << 4) | validateValue( (uint8_t)input[i + 1]-48 );
+		output[1+j++] = (validateValue( (uint8_t)input[i]-48 )  << 4) | validateValue( (uint8_t)input[i + 1]-48 );
 	}
 
 }

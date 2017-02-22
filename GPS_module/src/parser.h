@@ -11,4 +11,6 @@ void truncate_char_array(char *input, uint8_t length_of_input, uint8_t *output);
 
 void parse_NMEA(char *input, uint8_t length_of_input, char *output);
 
+uint8_t validateValue(int a);
+
 #endif

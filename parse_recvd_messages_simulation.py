@@ -1,5 +1,5 @@
 lines = "";
-with open("medlingFraNyttelast.txt", "r") as f:
+with open("test_data_sim.txt", "r") as f:
     lines = f.readlines();
 
 values = [];
@@ -14,7 +14,6 @@ messages=[];#Whole messages is the same as 13 uint8_t's
 words = []; #      one word is the same as 1  uint8_t/single message/package.
 remainingWords = 0;
 totalLosses = 0;
-prevCount = values[0][0]-1;
 
 #This will extract the messages
 for i in range(0, len(values)):   

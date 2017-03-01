@@ -69,12 +69,14 @@ def validateValue(a):
 #Here we are expanding one word(=uint8_t) into 2 chars.
 messagesAsChars=[]
 for i in range(0, len(messages)):
+    tmpMessage=[];
     for j in range(0, len(messages[i])):
         word = messages[i][j];
         char1 = chr(validateValue((word >> 4)) + 48);
         char2 = chr(validateValue((word & int('00001111',2)))+48);
-        messagesAsChars.append(char1);
-        messagesAsChars.append(char2);
+        tmpMessage.append(char1);
+        tmpMessage.append(char2);
+    messagesAsChars.append(tmpMessage);
 
        
 
@@ -83,14 +85,22 @@ for i in range(0, len(messages)):
 #             latitude, longitude, quality ind., numofsat, altitude
 #field_sizes:   8           9           1           2           6             
 messagesInterpreted = [];
+tmpmsg = [];
 for i in range(0, len(messagesAsChars)):
     msg = messagesAsChars[i];
     #Hard coding was the easiest way.
-    messagesInterpreted[i] = [float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8],
-                                  +msg[9]+msg[10]+msg[11]+msg[12]+msg[13]+'.'+msg[14]+msg[15]+msg[16]+msg[17]),
-                                  int(msg[18]),
-                                  int(msg[19] + msg[20]),
-                                  float(msg[21]+msg[22]+msg[23]+msg[24]+msg[25]+'.'+msg[26])]
+    #messagesInterpreted[i] = [float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8],
+    #                              +msg[9]+msg[10]+msg[11]+msg[12]+msg[13]+'.'+msg[14]+msg[15]+msg[16]+msg[17]),
+    #                              int(msg[18]),
+    #                              int(msg[19] + msg[20]),
+    #                              float(msg[21]+msg[22]+msg[23]+msg[24]+msg[25]+'.'+msg[26])]
+    tmpmsg.append(float(msg[0]+msg[1]+msg[2]+msg[3]+'.'+msg[4]+msg[5]+msg[6]+msg[7]))
+    tmpmsg.append(float(str(msg[8]) + str(msg[9])+str(msg[10])+str(msg[11])+str(msg[12])+'.'+str(msg[13])+str(msg[14])+str(msg[15])+str(msg[16])))
+    tmpmsg.append(int(msg[17]))
+    tmpmsg.append(int(msg[18] + msg[19]))
+    tmpmsg.append(float(msg[20]+msg[21]+msg[22]+msg[23]+'.'+msg[24]+msg[25]))
+    interpretedMessages.append(tmpmsg)
+    tmpmsg = [];
             
 
 #Store the interpreted messages for later use.

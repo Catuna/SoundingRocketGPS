@@ -29,21 +29,20 @@ def validateValue(a, b):
     elif (a == 13):
         return -3; # a minus sign
     elif(a == 14):
-        print ("Error indicator found. Setting value to 0");
+        #print ("Error indicator found.");
         return None;
     else:
-        print(str(b) + "  Unexpected error. Value is not 0-9 or 14 or 13. Setting it to 0");
+        #print(str(b) + "  Unexpected error. Value is not 0-9 or 14 or 13.");
         return None;
 
 
-def ConvertMessagesBackToChars(messages)
+def ConvertMessagesBackToChars(messages):
     messagesAsChars=[]
     errorIndices = []
     messagesWithErrors = []
     
     # Here we are expanding one word(=uint8_t) into 2 chars.
     for i in range(0, len(messages)):
-        validMessage = True;
         tmpMessage = [];
         for j in range(0, len(messages[i])):
             word = messages[i][j];
@@ -54,7 +53,8 @@ def ConvertMessagesBackToChars(messages)
                 # Something unexpected has happen.
                 errorIndices.append(i);
                 messagesWithErrors.append(messages[i]);
-                validMessage == False;
+                tmpMessage = []
+                #print(str(i) + "tmp1 or tmp2 is None")
                 break; # No need to keep iterating through the rest of the message.
             else:
                 char1 = chr(tmp1 + 48);
@@ -62,16 +62,16 @@ def ConvertMessagesBackToChars(messages)
                 tmpMessage.append(char1);
                 tmpMessage.append(char2);
         
-        if (validMessage == True):
+        if (len(tmpMessage) != 0):
             messagesAsChars.append(tmpMessage);
     
-    return messages, errorIndices, messagesWithErrors;
+    return messagesAsChars, errorIndices, messagesWithErrors;
     
 
        
 
 
-def interpretMessages(messagesAsChars)    
+def interpretMessages(messagesAsChars):
     #             latitude, longitude, quality ind., numofsat, altitude
     #field_sizes:   8           9           1           2           6
     
@@ -81,7 +81,8 @@ def interpretMessages(messagesAsChars)
     # Reconstruct the information.
     for i in range(0, len(messagesAsChars)):
         msg = messagesAsChars[i];
-        latitude = float(msg[0]+msg[1]) + float(msg[2]+msg[3]+'.'+msg[4]+msg[5]+msg[6]+msg[7])/60;
+        #print(str(i) + " of " + str(len(messagesAsChars)))
+        latitude = float(msg[0]+msg[1]) + float(msg[2]+msg[3]+'.'+msg[4]+msg[5]+msg[6]+msg[7] )/60;
         longitude = float(msg[8] + msg[9] + msg[10]) + float(msg[11] + msg[12] + '.' + msg[13]+msg[14]+msg[15]+msg[16])/60;
         qualityIndicator = int(msg[17]);
         numberOfSats = int(msg[18] + msg[19]);
@@ -147,9 +148,12 @@ def main():
     messagesAsUint8 = extractMessages(values);
     messagesAsChars, errorIndices, messagesWithErrors = ConvertMessagesBackToChars(messagesAsUint8);
     interpretedMessages = interpretMessages(messagesAsChars);
-    interpretedMessages = deleteMessagesWithBadQualityIndicator(interpretMessages);
+    interpretedMessages = deleteMessagesWithBadQualityIndicator(interpretedMessages); 
+    for elem in interpretedMessages:
+        print (elem)
+
     #TODO: Handle the errorIndices and messagesWithErrors. Not sure what you want to do with them.
-    #TODO: Check if the values make sence (i.e. not travelled insanely far.). Remember that we might lose and regain "fix"...
+    #TODO: Check if the values make sence (i.e. not travelled insanely far). Remember that we might lose and regain "fix"...
     createGPX(interpretedMessages,"locations.gpx")
 
 main();

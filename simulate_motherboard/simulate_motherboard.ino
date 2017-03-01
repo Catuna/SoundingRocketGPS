@@ -21,7 +21,7 @@
 /*  Pin layout
     Pinne nr    Pinne nr    Navn
     Rakett      Arduino     rakett          xplained
-    5           3           FrameStart      
+    5           3           FrameStart       PB1
     7           7           D0 (LSB)         PA0
     8           8           D1               PA1
     9           9           D2               PA2
@@ -29,7 +29,7 @@
     11          11          D4               PA4
     12          12          D5               PA5
     13          13          D6               PA6
-    14          6           D7 (MSB)    (Arduiono doesn't have pin nr. 14)
+    14          6           D7 (MSB)         PA7 (Arduiono doesn't have pin nr. 14)
 */
 
 
@@ -45,7 +45,8 @@ uint8_t D7 = 6;
 
 
 unsigned long lastUpdate = 0;
-unsigned long updateInterval = (unsigned long)1 / 2232*1000000; // in us
+//unsigned long updateInterval = (unsigned long)1 / 2232*1000000; // in us
+//unsigned long updateInterval = 100000;
 //unsigned long updateInterval = 1 * 1000000;
 
 void setup()
@@ -61,6 +62,7 @@ void setup()
     pinMode(D5, INPUT);
     pinMode(D6, INPUT);
     pinMode(D7, INPUT);
+    digitalWrite(D0, LOW);
     digitalWrite(D1, LOW);
     digitalWrite(D2, LOW);
     digitalWrite(D3, LOW);

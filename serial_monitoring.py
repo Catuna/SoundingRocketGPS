@@ -3,7 +3,7 @@ import os
 import serial
 import threading
 
-COMPORT = "COM4" #Update accordingly!
+COMPORT = "COM3" #Update accordingly!
 BAUDRATE = 115200
 
 def monitor():
@@ -14,6 +14,7 @@ def monitor():
             ser = serial.Serial(COMPORT, BAUDRATE, timeout = 0)
             break;
         except:
+            print("waiting for a part to connect to")
             continue;
     readJunk = 0;
     while(1):
@@ -23,8 +24,8 @@ def monitor():
             msgAsUint8 =  int.from_bytes(msgAsByte, byteorder='little');
             readJunk +=1;
             if readJunk >= 2500: ##Hack as hell. Hver gang man begynner aa lytte (uansett hvem som starter), saa leser den feil i starten.
-                if(msgAsUint8 != 192):
-                    print("baaad");
+                #if(msgAsUint8 != 192):
+                #print(msgAsUint8);
                 with open("meldingFraNyttelast.txt", "a") as text_file:
                     text_file.write(str(msgAsUint8)+"\n")
                     

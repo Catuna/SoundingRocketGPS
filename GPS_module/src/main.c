@@ -23,6 +23,7 @@
 #include <asf.h>
 #include <inttypes.h>
 #include <string.h>
+#include <avr/sleep.h>
 
 #include "parser.h"
 
@@ -81,9 +82,11 @@ static void GPIO_Init(void) {
 	/* Enable interrupt on port B */
 	PCICR |= 1 << PCIE1;
 	
+	/* Set interrupt to trigger on rising edge */
+	EICRA |= ((1 << ISC10)	| (1 << ISC11)); 
+	
 }
 
-//PB1 - PCINT9
 
 ISR(USART0_RX_vect) {
 	
@@ -111,21 +114,23 @@ ISR(USART0_RX_vect) {
 uint8_t next_byte_to_send = LENGTH_OF_OUTPUT_MESSAGE; // Initialized to 15 such that we will load a new message the first time.
 uint8_t array_currently_being_sent[14];
 
+//PB1 - PCINT9
 ISR(PCINT1_vect) {
 	// Check if it is a rising edge. (we don't care about falling edge)
 	if (PINB & (1 << PB1)){
 		// Check if we are done sending the whole message. 
 		//		Update array_currently_being_sent with the newest available message from GPS.
-		if (next_byte_to_send >= LENGTH_OF_OUTPUT_MESSAGE) {
-			char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
-			parse_NMEA(stored_ptr, stored_size, parsed);
-			truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
-			next_byte_to_send = 0;
-		}
+	if (next_byte_to_send >= LENGTH_OF_OUTPUT_MESSAGE) {
 		
-		//Send the next byte/uint8_t.
-		OUTPUT_PORT = get_output_data(array_currently_being_sent[next_byte_to_send]);
-		next_byte_to_send++;
+		char parsed[LENGTH_OF_PARSED] = { '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0' };
+		parse_NMEA(stored_ptr, stored_size, parsed);
+		truncate_char_array(parsed, LENGTH_OF_PARSED, array_currently_being_sent);
+		next_byte_to_send = 0;
+	}
+		
+	//Send the next byte/uint8_t.
+	OUTPUT_PORT = get_output_data(array_currently_being_sent[next_byte_to_send]);
+	next_byte_to_send++;
     }    
 }
 
@@ -134,9 +139,13 @@ int main (void)
 	cli();
 	GPIO_Init();
 	USART_Init();
+	
+	// Enable sleeping
+	set_sleep_mode(0);
+	sleep_enable();
 	sei();
-
+	
 	while (1) {
-		//TODO: Sleep
-	} // Polling is for losers
+		sleep_cpu(); // Polling is for losers
+	}
 }

@@ -1,5 +1,5 @@
 lines = "";
-with open("test_data_sim.txt", "r") as f:
+with open("meldingFraNyttelast.txt", "r") as f:
     lines = f.readlines();
 
 values = [];
@@ -46,36 +46,59 @@ def validateValue(a):
         print("Unexpected error. Value is not 0-9 or 14 or 13. Setting it to 0");
         return 0;
 
+#print(messages)
 
 for i in range(0, len(messages)):
+    tmpMessage = [];
     for j in range(0, len(messages[i])):
         word = messages[i][j];
         char1 = chr(validateValue((word >> 4)) + 48);
         char2 = chr(validateValue((word & int('00001111',2)))+48);
-        messagesAsChars.append(char1);
-        messagesAsChars.append(char2);
+        tmpMessage.append(char1);
+        tmpMessage.append(char2);
+    messagesAsChars.append(tmpMessage);
+    
+    
 
        
 
 #Reconstruct the information.
         
 #             latitude, longitude, quality ind., numofsat, altitude
-#field_sizes:   8           9           1           2           6             
+#field_sizes:   8           9           1           2           6
+print("\n\n\n")
+#print(messagesAsChars)
 interpretedMessages = [];
+tmpmsg = [];
+print(len(messagesAsChars))
 for i in range(0, len(messagesAsChars)):
+    #print(messagesAsChars)
     msg = messagesAsChars[i];
+    #print(msg)
+    #print(len(msg))
     #Hard coding was the easiest way.
-    interpretedMessages[i] = [float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8],
-                                  +msg[9]+msg[10]+msg[11]+msg[12]+msg[13]+'.'+msg[14]+msg[15]+msg[16]+msg[17]),
-                                  int(msg[18]),
-                                  int(msg[19] + msg[20]),
-                                  float(msg[21]+msg[22]+msg[23]+msg[24]+msg[25]+'.'+msg[26])];
-            
+    #interpretedMessages[i].append() = [float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8]),
+    #                              float(str(msg[9])+str(msg[10])+str(msg[11])+str(msg[12])+str(msg[13])+'.'+str(msg[14])+str(msg[15])+str(msg[16])+str(msg[17])),
+    #                              int(msg[18]),
+    #                              int(msg[19] + msg[20]),
+    #                              float(msg[21]+msg[22]+msg[23]+msg[24]+'.'+msg[25])];
+    #print(float(msg[0]+msg[1]+msg[2]+msg[3]+msg[4]+'.'+msg[5]+msg[6]+msg[7]+msg[8]))
+    tmpmsg.append(float(msg[0]+msg[1]+msg[2]+msg[3]+'.'+msg[4]+msg[5]+msg[6]+msg[7]))
+    tmpmsg.append(float(str(msg[8]) + str(msg[9])+str(msg[10])+str(msg[11])+str(msg[12])+'.'+str(msg[13])+str(msg[14])+str(msg[15])+str(msg[16])))
+    tmpmsg.append(int(msg[17]))
+    tmpmsg.append(int(msg[18] + msg[19]))
+    tmpmsg.append(float(msg[20]+msg[21]+msg[22]+msg[23]+'.'+msg[24]+msg[25]))
+    interpretedMessages.append(tmpmsg)
+    tmpmsg = [];
+    
+
+print(interpretedMessages[0])
 
 #Store the interpreted messages for later use.
 with open("interpretedMessages.txt", "w") as f:
     for i in range(0, len(interpretedMessages)):
         for j in range(0, len(interpretedMessages[i])):
+            #print(j)
             f.write(str(interpretedMessages[i][j]));
             if (j < len(interpretedMessages[i])):
                 f.write(',');

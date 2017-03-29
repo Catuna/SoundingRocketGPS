@@ -1,5 +1,8 @@
 import gpxpy
 import gpxpy.gpx
+
+DIGITAL_FIELD = 10 # D0 = 9, D1 = 10
+FRAME_COUNT_FIELD = 11;
     
 def extractMessages(values):
     messages=[]; # one message is the same as 13 uint8_t's
@@ -155,8 +158,8 @@ def main():
     # Convert each element into an integer and also strip the \n at the end
     values = []; # Format: [[counterVal,packet],[counterVal,packet]] 
     for i in range(0,len(rawData)):
-                      #Counter                                      #one word
-        values.append([int((lines[i].rstrip("\n")).split(",")[11]), int((lines[i].rstrip("\n")).split(",")[10])]);
+                      #Counter                                                     #one word
+        values.append([int((lines[i].rstrip("\n")).split(",")[FRAME_COUNT_FIELD]), int((lines[i].rstrip("\n")).split(",")[DIGITAL_FIELD])]);
 
 
     messagesAsUint8 = extractMessages(values);

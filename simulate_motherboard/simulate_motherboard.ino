@@ -45,7 +45,7 @@ uint8_t D7 = 6;
 
 
 unsigned long lastUpdate = 0;
-//unsigned long updateInterval = (unsigned long)1 / 2232*1000000; // in us
+unsigned long updateInterval = (unsigned long)1 / 2232*1000000; // in us
 //unsigned long updateInterval = 100000;
 //unsigned long updateInterval = 1 * 1000000;
 

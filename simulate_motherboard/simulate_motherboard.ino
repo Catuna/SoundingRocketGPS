@@ -52,7 +52,7 @@ unsigned long updateInterval = (unsigned long)1 / 2232*1000000; // in us
 void setup()
 {
 
-    Serial.begin(115200);
+    Serial.begin(9600);
     pinMode(FrameStart, OUTPUT);
     pinMode(D0, INPUT);
     pinMode(D1, INPUT);
@@ -78,9 +78,9 @@ void loop() {
     uint8_t msg  = 0;
     if (now >= lastUpdate + updateInterval) {
         digitalWrite(FrameStart, HIGH);
-        delayMicroseconds(64);
+        delay(10);
         digitalWrite(FrameStart, LOW);
-        delayMicroseconds(64);
+        delay(10);
         lastUpdate = now; //We don't want to let the execution time of the subsequent code affect when it should be read the next time.
         // Read the 8 pins. (If this goes too slow, we can install digitalReadFast2() or read the registers directly)
         msg = (((uint8_t)digitalRead(D7)) << 7) | (((uint8_t)digitalRead(D6)) << 6) | (((uint8_t)digitalRead(D5)) << 5) | (((uint8_t)digitalRead(D4)) << 4)  | (((uint8_t)digitalRead(D3)) << 3 ) | (((uint8_t)digitalRead(D2)) << 2 ) | (((uint8_t)digitalRead(D1)) << 1 ) | (((uint8_t)digitalRead(D0)) << 0 );

@@ -139,7 +139,7 @@ def main():
     rawData = "";
     with open("meldingFraNyttelast.txt", "r") as f:
         rawData = f.readlines();
-
+    
     # Convert each element into an integer and also strip the \n at the end
     values = [];
     for i in range(0,len(rawData)):

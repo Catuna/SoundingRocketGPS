@@ -5,7 +5,7 @@
  *
  */
 
-#define F_CPU 11059200UL // IMPORTANT: Replace this with frequency of occilator in final version
+#define F_CPU 16000000UL // IMPORTANT: Replace this with frequency of occilator in final version
 
 
 /* The largest size NMEA sentence that should be storable */

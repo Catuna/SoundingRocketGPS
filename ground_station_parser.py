@@ -1,8 +1,9 @@
 import gpxpy
 import gpxpy.gpx
 
-DIGITAL_FIELD = 10 # D0 = 9, D1 = 10
+DIGITAL_FIELD = 10; # D0 = 9, D1 = 10
 FRAME_COUNT_FIELD = 11;
+inputFile = "meldingFraNyttelast.txt";
     
 def extractMessages(values):
     messages=[]; # one message is the same as 13 uint8_t's
@@ -152,7 +153,7 @@ def createGPX(interpretedMessages, filename):
 def main():
     # Read the raw data.
     rawData = "";
-    with open("meldingFraNyttelast.txt", "r") as f:
+    with open(inputFile, "r") as f:
         rawData = f.readlines();
 
     # Convert each element into an integer and also strip the \n at the end
